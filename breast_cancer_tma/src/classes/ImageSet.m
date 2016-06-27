@@ -4,12 +4,12 @@ classdef (Abstract) ImageSet < handle
     %   Detailed explanation goes here
     
     properties
-        images;
-        num_images;
+%         images;
+%         num_images;
 %         num_biomarkers = 3;
 %         biomarkers = {'ER', 'PR', 'HER2'};
-        file_name_list;
-        image_dir;
+%         file_name_list;
+%         image_dir;
     end
     
     methods

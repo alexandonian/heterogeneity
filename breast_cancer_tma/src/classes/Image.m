@@ -1,51 +1,52 @@
 classdef (Abstract) Image < handle
-    %Image An image composed of an array of doubles plus secondary attributes
+    %Image An image composed of an array of doubles plus secondary
+    %attributes
     %   The secondary attributes include:
     %
-    %     spot_name - numbered spot name corresponding to its location in the
-    %                 tissue microarray (e.g. '001')
+    %     
     %
-    %     cohort_num - number corresponding to its cancer subtype
-    %                  classification or cancer cell line:
-    %                  1: ER+ IDC
-    %                  2: ER+ ILC
-    %                  3: ER- IDC
-    %                  4: HER2+ IDC
-    %                  5: MCF7
-    %                  6: MCF10A
-    %                  7: MDA-MB-231
+    %    spot_name - numbered spot name corresponding to its location in
+    %                the tissue microarray (e.g. '001')
+    %
+    %    cohort_num - number corresponding to its cancer subtype
+    %                  classification or cancer cell line: 
+    %                  1: ER+ IDC 
+    %                  2: ER+ ILC 
+    %                  3: ER- IDC 
+    %                  4: HER2+ IDC 
+    %                  5: MCF7 
+    %                  6: MCF10A 
+    %                  7: MDA-MB-231 
     %                  8: MDA-MB-468
     %
-    %     biomarker - immunofluorescent biomarker (e.g. 'ER', 'PR', 'HER2')
+    %    xy - an array containing the spatial (xy) coordinates for each
+    %         cell measured from the top-left corner
     %
-    %     xy - an array containing the spatial (xy) coordinates for each cell
-    %          measured from the top-left corner
+    %    tilesize - height and width (in pixels) of the child patches
+    %               derived from image
     %
-    %     tilesize - height and width (in pixels) of the child patches
-    %                derived from image
+    %    threshold - number of cells required for child patches to be
+    %                considered informative, and thus retained
     %
-    %     threshold - number of cells required for child patches to be
-    %                 considered informative, and thus retained
+    %    parent_image - for derived images, the the parent that was used
+    %                   to create this image. This image may inherit
+    %                   attributes from the parent image, such as
+    %                   spot_name, cohort_num etc.
     %
-    %     parent_image - for derived images, the the parent that was used to
-    %                    create this image. This image may inherit attributes from the parent
-    %                    image, such as spot_name, cohort_num etc.
+    %    patches - child images of size tilesize x tilesize derived by
+    %              splitting this image into patches
     %
-    %     patches - child images of size tilesize x tilesize derived by
-    %               splitting this image into patches
+    %    path_name - the path name to the file holding the image
     %
-    %     path_name - the path name to the file holding the image
+    %    file_name - the file name of the file holding the image
     %
-    %     file_name - the file name of the file holding the image
+    %    patches - child images of size tilesize x tilesize derived by
+    %              splitting this image into patches
     %
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % NOTE: Class constructor requires filename of image and TMA stuct.
+    %    patches_outdir - path name to the directory contain child patches
     %
-    %   filename: must be of the form [biomarker]_[processing]_[spot_name].tif
-    %
-    %   TMA struct: contains path image directory path information and cohort
-    %   information. See load_TMA.m for more information
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
     
     properties
         
@@ -53,18 +54,16 @@ classdef (Abstract) Image < handle
         adjusted_image
         spot_name;
         cohort_num;
-%         biomarker;
         xy;
         features;
         tilesize = 256;
         threshold = 4;
-%         parent_image;
-%         patches;
         path_name;
+        path_name_adjusted;
         file_name;
         base_path;
-        
-        
+        patches;
+        patches_outdir;
         
     end
       
@@ -73,28 +72,64 @@ classdef (Abstract) Image < handle
         % Split Image into patches
         function split_into_patches(obj, varargin)
             
-            % Check for tilesize
-            if nargin > 2
+            % split_into_patches() splits each image into patches with a
+            % default tilesize of 256 pixels
+            %
+            % split_into_patches(tilesize) splits each image into patches
+            % with a tilesize of tilesize.
+            %
+            % split_into_patches(tilesize, outdir) splits each image into
+            % patches with a tilesize of tilesize and save patches in the
+            % directory outdir.
+            
+            % Check for tilesize argument
+            if nargin > 3
                 error('Too many input arguments!')
+            elseif nargin == 3
+                obj.patches_outdir = varargin{2};
+                obj.tilesize = varargin{1};
             elseif nargin == 2
                 obj.tilesize = varargin{1};
+                obj.patches_outdir = [obj.base_path, 'patches/cohort_',...
+                num2str(obj.cohort_num), '/'];
+            else
+                obj.patches_outdir = [obj.base_path, 'patches/cohort_',...
+                num2str(obj.cohort_num), '/'];
+            end
+            
+            % Check if patches have already been made, otherwise make
+            % patches outdir and populate it with patches
+            if ~exist(obj.patches_outdir, 'file')
+                % TODO: check if outdir exists and make it if it doesn't
+                make_dir = sprintf('mkdir -p %s', obj.patches_outdir);
+                system(make_dir);
             end
             
             % Format and call VIPS dzsave command
-            base_command = ['vips dzsave %s %s --tile-size %d',... 
-                '--depth one --suffix .png'];
-            outdir = [obj.base_path, 'proc_images/cohort_',...
-                num2str(obj.cohort_num), '/', obj.filename(1:end-4), '/'];
+            base_command = ['vips dzsave %s %s --tile-size %d',...
+                ' --depth one --suffix .png'];
+            vips_command = sprintf(base_command, obj.path_name,...
+                obj.patches_outdir, obj.tilesize);
             
-            vips_command = sprintf(base_command, Im_info.path, outdir, obj.tilesize);
-%             disp(vips_command);
+             disp(vips_command);
             system(vips_command);
             
+            % Gather patch information and prepare patch array
+            d = dir([obj.patches_outdir, '_files/0/*.png']);
+            patch_filenames = {d.name};
+            nPatches = numel(patch_filenames);
+            obj.patches = cell(nPatches, 1);
+            
+            % Create Patch objects
+            for i = 1:nPatches
+                obj.patches{i} = Patch(obj, patch_filenames{i});
+            end            
         end
-        
+                  
         % Adjust Contrast for pseudo-colored images
         function adjust_contrast(obj)
-            obj.adjusted_image = imadjust(obj.image);
+            adj_image = imadjust(obj.image);
+            obj.save_image(adj_image, [obj.file_name, '_adjusted'])
         end
         
         % Display Image
@@ -124,8 +159,8 @@ classdef (Abstract) Image < handle
             if nargin > 3
                 error('Too many input arguments!')
             elseif nargin == 3
-                file_name = varargin{1};
-                imwrite(obj.image, [target_dir, file_name]);
+                filename = varargin{1};
+                imwrite(obj.image, [target_dir, filename]);
             else
                 imwrite(obj.image, [target_dir, obj.file_name]);
             end                                              
@@ -156,45 +191,17 @@ classdef (Abstract) Image < handle
             end
         end
         
-        % Utility function for class constructor
-        function [cohort_num, xy] = getCohortInfo(obj, TMA)
-            %getCohortInfo Determines the cohort number and fetches the spatial
-            %coordinates for the spot labeled spot_num.
-            
-            for i = 1:8
-                
-                % Match spot_num to a spot name in cohort
-                c_i = {TMA.cohort(i).spot.name};
-                idx = strcmp(obj.spot_name, c_i);
-                
-                % If there is a match, get the cohort num and xy coords.
-                if sum(idx)
-                    cohort_num = i;
-                    xy = TMA.cohort(i).spot(idx).xy;
-                    return
-                end
-            end
-            warning('Spot does not belong to any cohorts!');
-        end
-        
-        % Getters and Setters
+        % Getters and Setters ---------------------------------------------
         
         function image = get.image(obj)
+            % Load on demand from HD
             image = im2double(imread(obj.path_name));
         end
         
         function adjusted_image = get.adjusted_image(obj)
-            adjusted_image = im2double(imread(obj.path_name));
+            % Load on demand from HD
+            adjusted_image = im2double(imread(obj.path_name_adjusted));
         end
-        
-        function set.image(obj, image)
-            obj.image = image;
-        end
-        
-         function set.adjusted_image(obj, adjusted_image)
-            obj.adjusted_image = adjusted_image;
-        end
-        
     end 
     
 end

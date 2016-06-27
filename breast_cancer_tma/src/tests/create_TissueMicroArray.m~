@@ -1,0 +1,5 @@
+%% C
+
+addpath(genpath('/home/alexandonian/heterogeneity/breast_cancer_tma'));
+run /home/alexandonian/heterogeneity/breast_cancer_tma/src/setup/make_TMA
+

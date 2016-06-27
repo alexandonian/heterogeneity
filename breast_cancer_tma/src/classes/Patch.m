@@ -7,9 +7,6 @@ classdef Patch < Image
         parent_image;
         biomarker;
         triplets;
-    end
-    
-    properties (Dependent)
         empty = false;
     end
     
@@ -78,6 +75,8 @@ classdef Patch < Image
             end
             obj.triplets = triplet_matrix;
         end
+        
+        % Getters and Setters ---------------------------------------------
         
         function value = get.empty(obj)
             if obj.num_cells < obj.threshold
