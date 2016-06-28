@@ -14,7 +14,8 @@ from PIL import Image
 class TissueMicroArray(object):
 
     def __init__(self):
-    	self.data = '../../../data-99spots'
+    	self.data = '../../../data-99spots/'
+    	self.image_dir = '../../../images/'
     	self.files = [f for f in listdir(self.data) if isfile(join(self.data, f)) and f.endswith('.csv')]
     	self.spots = []
 
@@ -34,13 +35,29 @@ class TissueMicroArray(object):
     		images = {}
     		for i, bio in enumerate(uniq_biomarker):
     			features[bio] = {}
-    			images[bio] = 
+
+    			# Get path to image of biomarker and spot
+    			image_bio_dir = [join(self.image_dir,f) for f in listdir(self.image_dir) if bio.lower() in f.lower()]
+    			if image_bio_dir:
+	    			image_file = [join(image_bio_dir[0],f) for f in listdir(image_bio_dir[0]) if spot_name in f]    		
+	    			if image_file:
+	    				im = Image.open(image_file[0])
+	    				images[bio] = im
+	    				# print image_file[0]
+	    			else:
+	    				# TODO: add exception instead of print statement
+	    				print "missing image"
+	    				print spot_name
+	    		else:
+	    			# TODO: add exception instead of print statement
+	    			print 'missing image directory'
+	    		
     			for j, loc in enumerate(uniq_location):
     				features[bio][loc] = df[col[k]].values
     				k+=1
 
 
-    		self.spots.append(Spot(None, spot_name, cohort_num, features, xy, tilesize=256, patches=None))
+    		self.spots.append(Spot(images, spot_name, cohort_num, features, xy, tilesize=256, patches=None))
 
 
     def determineCohort(self,spot_name):
@@ -76,8 +93,8 @@ class Spot(object):
 				tilesize=256, 
 				patches=None):
 
-		if image is not None:
-			self.image = image
+		if images is not None:
+			self.images = images
 		if spot_name is not None:
 			self.spot_name = spot_name
 		if cohort_num is not None:
@@ -94,6 +111,6 @@ tma = TissueMicroArray()
 # for i in range(len(tma.spots)):
 # 	print tma.spots[i].spot_name
 
-print tma.spots[1].features.keys()
+print tma.spots[2].images['Her2'].show()
 
     
