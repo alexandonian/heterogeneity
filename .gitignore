@@ -1,5 +1,4 @@
 /Papers
-/Proposals
 /breast_cancer_tma/images
 /breast_cancer_tma/pseudo-colored_patches
 /breast_cancer_tma/proc_images
@@ -11,3 +10,11 @@
 /breast_cancer_tma/python_scripts
 /breast_cancer_tma/extra/table1_HiRes.png
 /breast_cancer_tma/extra/TMA_Spot\ locations.docx
+.DS_Store
+Proposal /
+breast_cancer_tma/.DS_Store
+breast_cancer_tma/.ipynb_checkpoints/
+breast_cancer_tma/additional_images/
+breast_cancer_tma/images3D/
+heterogeneity.sublime-project
+heterogeneity.sublime-workspace
