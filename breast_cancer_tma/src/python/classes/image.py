@@ -43,7 +43,7 @@ class Image(object):
 
     tilesize - height and width (in pixels) of the child patches
                derived from image
-    
+
     threshold - number of cells required for child patches to be
                 considered informative, and thus retained
 
@@ -84,8 +84,3 @@ class ImageSet(object):
     def __init__(self, arg):
         super(ImageSet, self).__init__()
         self.arg = arg
-        
-
-
-
-
