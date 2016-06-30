@@ -8,18 +8,19 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 from PIL import Image as Pimage
-from sklearn.feature_extraction import image as sklim
+from image import *
 from skimage.util import shape
 import matplotlib.pyplot as plt
 
 
 class ImageSet(object):
 
-    def __init__(self):
+    def __init__(self, data_dir=None, image_dir=None):
 
         # Relatives paths to data and image directories
-        self.path = {'data': '../../../data-99spots/',
-                     'image': '../../../images/'}
+        if not data_dir and image_dir:
+            self.path = {'data': '../../../data/',
+                         'image': '../../../images/'}
 
         # Load .csv data files containing cell spatial coords
         # and biomarker intensities
@@ -27,9 +28,20 @@ class ImageSet(object):
                            if isfile(join(self.path['data'], f)) and
                            f.endswith('.csv')]
 
-        # Prepare an empyt dict to hold Image objects
+        # Prepare an empty dict to hold Image objects
         self.images = {}
+        self.df = None
+        self.biomarkers = None
+        self.locations = None
+    #     TODO:
+    # self.load_data
+    #     self.fetch_data
+    #     self.parse_data
+    # self.load_images
+    #     self.fetch_image_files
+    #     self.load_image
 
+    # TODO: Refactor this section to make it 'flatter'
     def generate_images(self):
         """Populates ImageSet.Images, a dict contain Images indexed by Image name."""
         for f in self.data_files:
@@ -49,7 +61,7 @@ class ImageSet(object):
             # and expression locations
             bio, loc, col = (
                 zip(*[(col.split('_')[0], col.split('_')[1], col)
-                      for col in list(self.df) if col.split('_')[0] != 'Cell']))
+                    for col in list(self.df) if col.split('_')[0] != 'Cell']))
 
             # Extract a list of unique biomarkers and expression locations
             self.biomarkers = list(set(bio))
@@ -77,7 +89,7 @@ class ImageSet(object):
                             image = np.array(im)
                             images[bio] = image
                             # VS. (ASK ABOUT THIS)
-                            nd_image[:,:, i] = self.im2double(image)
+                            nd_image[:, :, i] = self.im2double(image)
                             channel_idx.append(bio)
 
                             # print image_file[0]
@@ -93,16 +105,22 @@ class ImageSet(object):
                     features[bio][loc] = self.df[col[k]].values
                     k += 1
 
-            self.images[image_name] = Image(images,
-                                         image_name,
-                                         class_num,
-                                         features,
-                                         xy,
-                                         tilesize=256,
-                                         patches=None)
+            self.images[image_name] = Image(images, self.biomarkers, nd_image, image_name, class_num,
+                                            xy, features, patch_shape=(256, 256, 3),
+                                            patches=None)
+
+    def get_image(self, image_name):
+        return self.images[image_name]
+
+    def fetch_data(self):
+        pass
 
     def load_images(self):
         pass
+
+    def load_image(self):
+        pass
+
     def load_image_set_props(self):
         pass
 
@@ -138,60 +156,60 @@ class ImageSet(object):
             print 'Image does not belong to any cohorts!'
 
 
-class Image(object):
+# class Image(object):
 
-    def __init__(self, images=None,
-                 image_name=None,
-                 class_num=None,
-                 features=None,
-                 xy=None,
-                 tilesize=256,
-                 patches=None):
+#     def __init__(self, images=None,
+#                  image_name=None,
+#                  class_num=None,
+#                  features=None,
+#                  xy=None,
+#                  tilesize=256,
+#                  patches=None):
 
-        if images is not None:
-            self.images = images
-        if image_name is not None:
-            self.Image_name = Image
-        if class_num is not None:
-            self.class_num = class_num
-        if features is not None:
-            self.features = features
-        if xy is not None:
-            self.xy = xy
+#         if images is not None:
+#             self.images = images
+#         if image_name is not None:
+#             self.Image_name = Image
+#         if class_num is not None:
+#             self.class_num = class_num
+#         if features is not None:
+#             self.features = features
+#         if xy is not None:
+#             self.xy = xy
 
-    def split_into_patches(self, biomarker=None, patch_shape=(256, 256), overlap=None):
-        pass
-        # TODO: determine whether patch all channels at once, or individual channels
-        # Note: use skimage.util.shape.view_as_windows()
-        # Stride = shape[0] - overlap
-        # or if you want overlap in both x and y dimens stride = patch_shape - overlap
-        # where type(stride)==type(patch_shape)==type(overlap) == tuple of length n dimensions\
-        # overlap cannot be larger than patch_shape - 1 nor small
+#     def split_into_patches(self, biomarker=None, patch_shape=(256, 256), overlap=None):
+#         pass
+#         # TODO: determine whether patch all channels at once, or individual channels
+#         # Note: use skimage.util.shape.view_as_windows()
+#         # Stride = shape[0] - overlap
+#         # or if you want overlap in both x and y dimens stride = patch_shape - overlap
+#         # where type(stride)==type(patch_shape)==type(overlap) == tuple of length n dimensions\
+#         # overlap cannot be larger than patch_shape - 1 nor small
 
-        # USING view_as_windows(image, patch_shape, step)
-        # for and MxNx3 image, I want each patch to tilesize x tilesize x 3 patch (3D) patch
-        # so patch_shape=(tilesize, tilesize, 3)
-        # for nonoverlapping patches, our step in dims 0 and 1 should be the same as tilesize
-        # so, step(tilesize, tilesize, 1)
+#         # USING view_as_windows(image, patch_shape, step)
+#         # for and MxNx3 image, I want each patch to tilesize x tilesize x 3 patch (3D) patch
+#         # so patch_shape=(tilesize, tilesize, 3)
+#         # for nonoverlapping patches, our step in dims 0 and 1 should be the same as tilesize
+#         # so, step(tilesize, tilesize, 1)
 
-        if biomarker:
-            im = self.images[biomarker]
-        else:
-            im = s
+#         if biomarker:
+#             im = self.images[biomarker]
+#         else:
+#             im = s
 
 
-    def show(self, biomarker):
-        """Show grayscale image of Image labeled with biomarer"""
-        Pimage.fromarray(self.images[biomarker]).show()
+#     def show(self, biomarker):
+#         """Show grayscale image of Image labeled with biomarer"""
+#         Pimage.fromarray(self.images[biomarker]).show()
 
-    def show_pseudo_image(self, channel_list):
-        pass
-        # TODO: call make_nchannel_image for 3 channels of interest
+#     def show_pseudo_image(self, channel_list):
+#         pass
+#         # TODO: call make_nchannel_image for 3 channels of interest
 
-    def get_informative_channels(self):
-        pass
-        # TODO: will require analysis
-        # call make_nchannel_image
+#     def get_informative_channels(self):
+#         pass
+#         # TODO: will require analysis
+#         # call make_nchannel_image
 
 
 tma = ImageSet()

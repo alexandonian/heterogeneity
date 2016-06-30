@@ -1,6 +1,6 @@
 /Papers
-/Proposals
 /breast_cancer_tma/images
+/breast_cancer_tma/images3D
 /breast_cancer_tma/pseudo-colored_patches
 /breast_cancer_tma/proc_images
 /breast_cancer_tma/data-99spots
@@ -11,6 +11,6 @@
 /breast_cancer_tma/python_scripts
 /breast_cancer_tma/extra/table1_HiRes.png
 /breast_cancer_tma/extra/TMA_Spot\ locations.docx
-breast_cancer_tma/
-.ipynb_checkpoints/
+breast_cancer_tma/.ipynb_checkpoints/
 breast_cancer_tma/additional_images
+.DS_Store
