@@ -1,0 +1,13 @@
+Notes:
+DATA_FETCHER CLASS
+loads all the data associated with some spatial region of interest (i.e. plane of  tissue image)
+need to know the image type (e.g. WSI, and desired features e.g. cellular locations, image if possible )
+
+IMAGE-represents all the spatial information associated with some tissue/region of interest (i.e. the plane of imaged tissue)
+if possible 
+- in the future, I can imagine a 3D image or "voxel like structure" contains properties of a 3D section of tissue that has been assembled by stacking many aligned images 
+
+spatial statisics class
+    send images through conv net
+
+visualization class

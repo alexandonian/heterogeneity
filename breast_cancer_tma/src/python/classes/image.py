@@ -17,7 +17,6 @@ from os import listdir
 from os.path import isfile, join
 from PIL import Image as Pimage
 from skimage.util import shape
-import matplotlib.pyplot as plt
 from skimage.util import shape
 from PIL import Image as Pimage
 import scipy.io as sio
@@ -149,6 +148,15 @@ class Image(object):
         pass
         # TODO: will require analysis
         # call make_nchannel_image
+
+
+class Patch(Image):
+
+    def __init__(self):
+        pass
+
+    def is_informative(self):
+        pass
 
 
 class ImageSet(object):
