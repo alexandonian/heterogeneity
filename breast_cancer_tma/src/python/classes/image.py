@@ -20,6 +20,7 @@ from skimage.util import shape
 from skimage.util import shape
 from PIL import Image as Pimage
 import scipy.io as sio
+from values import Strings
 
 
 class Image(object):
@@ -62,38 +63,42 @@ class Image(object):
 
     """
 
-    def __init__(self,
-                 images=None,
-                 channels=None,
-                 nd_image=None,
-                 image_name=None,
-                 class_num=None,
-                 xy=None,
-                 features=None,
-                 patch_shape=(256, 256),
-                 threshold=4,
-                 parent_image=None,
-                 patches=None,
-                 path_name=None,
-                 file_name=None,
-                 patches_outdir=None):
+    # def __init__(self,
+    #              images=None,
+    #              channels=None,
+    #              nd_image=None,
+    #              image_name=None,
+    #              class_num=None,
+    #              xy=None,
+    #              features=None,
+    #              patch_shape=(256, 256),
+    #              threshold=4,
+    #              parent_image=None,
+    #              patches=None,
+    #              path_name=None,
+    #              file_name=None,
+    #              patches_outdir=None):
+    def __init__(self, image_info=None, im_data=None, feat_date=None):
 
-        if images is not None:
-            self.images = images
-        if nd_image is not None:
-            self.nd_image = nd_image
-        if image_name is not None:
-            self.Image_name = Image
-        if class_num is not None:
-            self.class_num = class_num
-        if features is not None:
-            self.features = features
-        if xy is not None:
-            self.xy = xy
-        if channels is not None:
-            self.channels = channels
-        if patches is not None:
-            self.patches = patches
+        # if images is not None:
+        #     self.images = images
+        # if nd_image is not None:
+        #     self.nd_image = nd_image
+        # if image_name is not None:
+        #     self.Image_name = Image
+        # if class_num is not None:
+        #     self.class_num = class_num
+        # if features is not None:
+        #     self.features = features
+        # if xy is not None:
+        #     self.xy = xy
+        # if channels is not None:
+        #     self.channels = channels
+        # if patches is not None:
+        #     self.patches = patches
+        self.info = image_info
+        self.images = im_data
+        self.features = feat_date
 
     def split_into_patches(self,
                            channel=None,
@@ -126,7 +131,7 @@ class Image(object):
         if channel:
             im = self.images[channel]
         else:
-            im = self.nd_image
+            im = self.images[Strings.IF]
         if patch_shape != im.shape:
             patch_shape = (256, 256, im.shape[2])
 

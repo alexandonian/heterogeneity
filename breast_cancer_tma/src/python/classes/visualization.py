@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 # show_subset_patches
 def show_subset_patches(image, subplot_shape):
-    patches = image.patches.shape
+    image.split_into_patches()
+    patches = image.patches
     k = 1
     for i in range(subplot_shape[0]):
         for j in range(subplot_shape[1]):
