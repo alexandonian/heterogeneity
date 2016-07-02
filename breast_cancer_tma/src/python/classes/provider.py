@@ -129,7 +129,7 @@ class ImageSetProvider(object):
         self.paths = {'image': [],
                       'feature': []}
 
-    def fetch_modality_info(self, modality):
+    def fetch_modality_info(self):
         """
         Fetch information about the imaging modality such as features of
         interest, number of feature channels etc.
