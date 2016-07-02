@@ -71,6 +71,14 @@ class Image(object):
         self.images = im_data
         self.features = feat_date
 
+        # TODO: add properties using decorator syntax
+        @property
+        def images(self):
+            return self._images
+
+
+        
+
     def split_into_patches(self,
                            channel=None,
                            patch_shape=(256, 256, 3),
