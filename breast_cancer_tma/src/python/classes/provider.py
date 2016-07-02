@@ -19,7 +19,7 @@ class ImageProvider(object):
         # im_type_info = {'path': path,
         #                 'file_name': file_name,
         #                 'channel_list': channel_list
-                           # 'image_shape': (2048, 2048)}
+        #                 'image_shape': (2048, 2048)}
 
         # image_info = {Strings.IF: im_type_info}
         self.image_info = image_info
@@ -46,8 +46,9 @@ class ImageProvider(object):
             channel_list = self.image_info[Strings.IF]['channel_list']
             print image_shape
             print len(channel_list)
-            nd_image = np.zeros((image_shape[0], image_shape[1], len(channel_list)))
-            
+            nd_image = np.zeros((image_shape[0], image_shape[1],
+                                 len(channel_list)))
+
             for i, path in enumerate(im_paths):
                 with Pimage.open(path).convert('L') as im:
                     im = np.array(im)
@@ -58,6 +59,14 @@ class ImageProvider(object):
 
     def load_features_by_type(self, type):
 
+        # TODO: Refactor the following code into a separate function
+        # e.g. if type == Strings.IF:
+        #   fetcher = infoFetcher()
+        #   feats = fetcher.fetch_IF_features
+        # OR
+        #   feats = fetcher.fetch_features(String.IF)
+        #   further organization of features?
+        #   Consult others?
         if type == Strings.IF:
 
             feats = {'xy': None,
@@ -103,6 +112,12 @@ class ImageProvider(object):
     def determine_class_num(type, image_name):
         pass
 
+    ###########################################################################
+    # FUTURE METHODS:
+    # - coordinating alignment within a 2D plane for each image type
+    # - coordinating alignment within a 2D plane across image types
+    ###########################################################################
+
 
 class ImageSetProvider(object):
 
@@ -124,8 +139,6 @@ class ImageSetProvider(object):
         - features: biomarker intensity at xy locations
         - number of features: how many biomarkers are we interested in
         """
-
-        if modality == 'IF':
 
             fetcher = infoHelper()
             info = fetcher.fetch_IF_info('i')

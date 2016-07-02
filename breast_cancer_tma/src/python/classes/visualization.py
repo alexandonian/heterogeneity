@@ -1,6 +1,15 @@
 import matplotlib.pyplot as plt
 
 
+def show(image):
+    """ Show grayscale image of the desired image channel. """
+    pass
+
+
+def show_pseudo_image(image):
+    pass
+
+
 # show_subset_patches
 def show_subset_patches(image, subplot_shape):
     image.split_into_patches()

@@ -1,6 +1,9 @@
-"""Image.py
+"""
+image.py
 
-Image        - Represents an image with secondary attributes such as a spot name and cohort number
+Image    - Represents an image with secondary attributes
+Patch    - Represents a patch with secondary attributes derived from an Image
+ImageSet - Represents the set of Images for a particular iteration of the pipline.
 """
 
 import math
@@ -10,15 +13,12 @@ from cPickle import dump, Unpickler
 from struct import unpack
 from zlib import decompress
 import numpy as np
-from numpy import fromstring, uint8, uint16
 import pandas as pd
-import numpy as np
+from numpy import fromstring, uint8, uint16
 from os import listdir
 from os.path import isfile, join
 from PIL import Image as Pimage
 from skimage.util import shape
-from skimage.util import shape
-from PIL import Image as Pimage
 import scipy.io as sio
 from values import Strings
 
@@ -26,6 +26,7 @@ from values import Strings
 class Image(object):
 
     """
+    # TODO: Rewrite this
     An image composed of numpy ndarray plus secondary attributes
     The secondary attributes include:
 
@@ -63,39 +64,9 @@ class Image(object):
 
     """
 
-    # def __init__(self,
-    #              images=None,
-    #              channels=None,
-    #              nd_image=None,
-    #              image_name=None,
-    #              class_num=None,
-    #              xy=None,
-    #              features=None,
-    #              patch_shape=(256, 256),
-    #              threshold=4,
-    #              parent_image=None,
-    #              patches=None,
-    #              path_name=None,
-    #              file_name=None,
-    #              patches_outdir=None):
     def __init__(self, image_info=None, im_data=None, feat_date=None):
 
-        # if images is not None:
-        #     self.images = images
-        # if nd_image is not None:
-        #     self.nd_image = nd_image
-        # if image_name is not None:
-        #     self.Image_name = Image
-        # if class_num is not None:
-        #     self.class_num = class_num
-        # if features is not None:
-        #     self.features = features
-        # if xy is not None:
-        #     self.xy = xy
-        # if channels is not None:
-        #     self.channels = channels
-        # if patches is not None:
-        #     self.patches = patches
+        # TODO: Error and None checking
         self.info = image_info
         self.images = im_data
         self.features = feat_date
@@ -139,16 +110,6 @@ class Image(object):
 
         self.patches = shape.view_as_windows(im, patch_shape, step)
 
-    def show(self, channel):
-        """Show grayscale image of the desired image channel.
-        :param channel:
-        """
-        Pimage.fromarray(self.images[channel]).show()
-
-    def show_pseudo_image(self, channel_list):
-        pass
-        # TODO: call make_nchannel_image for 3 channels of interest
-
     def get_informative_channels(self):
         pass
         # TODO: will require analysis
@@ -157,7 +118,7 @@ class Image(object):
 
 class Patch(Image):
 
-    def __init__(self):
+    def __init__(self, im_info, patch_data, feat_data):
         pass
 
     def is_informative(self):
