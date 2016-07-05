@@ -76,7 +76,6 @@ class Image(object):
         def images(self):
             return self._images
 
-
         
 
     def split_into_patches(self,

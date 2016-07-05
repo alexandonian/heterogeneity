@@ -10,30 +10,50 @@ from values import *
 
 class ImageProvider(object):
 
+    """Generate and handle Image object
+
+    The ImageProvider (and ImageSetProvider) class bridge the gap between
+    ImageSet and Image objects. For each image in an imageset, an ImageProvider
+    is dispatched to generate an Image object. The ImageSetProvider passes
+    path and metadata information for all imaging modalities to the
+    ImageProvider, which loads images and features. Lastly, the ImageProvider
+    also generates labels that index and Image object's image array.
+
+    """
     def __init__(self, image_info):
+        """Initialize ImageProvider object.
 
-        # path = {'images': 'path_to_images',
-        #         'features': 'path_to feature_file'}
-        # file_name = {'images': 'image_names',
-        #              'feature': 'feature_name'}
-        # im_type_info = {'path': path,
-        #                 'file_name': file_name,
-        #                 'channel_list': channel_list
-        #                 'image_shape': (2048, 2048)}
+        :param image_info: a nested dictionary containing image and path info.
+        The structure of image_info is shown below:
 
-        # image_info = {Strings.IF: im_type_info}
+        image_info = {image_type:
+                                 {'path_name': path_name},
+                                 {'file_name': file_name},
+                                 {'channel_list': channel_list}
+                                 {'image_shape': image_shape}}
+
+        where path_name = {'images': image_path
+                           'features': features_path}
+              file_name = {'images': image_name
+                           'features': features_name}
+
+        :return: an imageprovider
+
+        """
         self.image_info = image_info
+        self.image_obj = None
 
     def generate_image_obj(self):
 
         im_data = {}
         feat_data = {}
 
-        for type, im_type_info in self.image_info.items():
+        for type in self.image_info.keys():
 
             im_data[type] = self.load_images_by_type(type)
             feat_data[type] = self.load_features_by_type(type)
             image_obj = Image(self.image_info, im_data, feat_data)
+            self.image_obj = image_obj
 
         return image_obj
 
@@ -121,6 +141,17 @@ class ImageProvider(object):
 
 class ImageSetProvider(object):
 
+    """Generate and dispatch ImageProvider objects.
+
+    The ImageSet (and ImageProvider) class bridge the gap between
+    ImageSet and Image objects. The ImageSetProvider determines the image
+    modalities of interest, finds all image and data files for each image type
+    and passes this information to individual ImageProviders, which generate
+    image objects. For each image object, the ImageSetProvider passes one image
+    and data file for all image types to an ImageProvider.
+
+    """
+
     def __init__(self):
 
         # TODO: a list of imaging modalities OR a a dictionary containing
@@ -139,9 +170,9 @@ class ImageSetProvider(object):
         - features: biomarker intensity at xy locations
         - number of features: how many biomarkers are we interested in
         """
-
-            fetcher = infoHelper()
-            info = fetcher.fetch_IF_info('i')
+        info = None
+        # fetcher = infoHelper()
+        # info = fetcher.fetch_IF_info('i')
         return info
 
     def fetch_features(self, modality, info):

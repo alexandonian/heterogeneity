@@ -27,4 +27,5 @@ class Paths(object):
 
     # Important paths that define where the data directores are stored relative
     # to base/src directories
-    IF_data = ''
+    IF_data = '../../../data'
+    IF_images = '../../../images'
